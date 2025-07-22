@@ -117,7 +117,7 @@ def submit_assignment(
     submission = Submission(
         assignment_id=assignment_id,
         student_id=current_user.id,
-        attachment_url=str(file_path)
+        attachment_url=attachment_url_path
     )
 
     session.add(submission)
@@ -151,3 +151,25 @@ def get_submissions_for_assignment(
     return assignment.submissions
 
 
+@router.get("/{assignment_id}/my-submission", response_model=SubmissionRead)
+def get_my_submission_for_assignment(
+    *,
+    assignment_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_student),
+):
+    """
+    Get the student's own submission for a specific assignment.
+    """
+    submission = session.exec(
+        select(Submission)
+        .where(
+            Submission.assignment_id == assignment_id,
+            Submission.student_id == current_user.id
+        )
+    ).first()
+
+    if not submission:
+        raise HTTPException(status_code=404, detail="Submission not found")
+
+    return submission

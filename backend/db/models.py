@@ -45,6 +45,7 @@ class Submission(SQLModel, table=True):
     attachment_url: Optional[str] = None
 
     # Foreign keys
+    
     assignment_id: int = Field(foreign_key="assignment.id")
     student_id: int = Field(foreign_key="user.id")
 

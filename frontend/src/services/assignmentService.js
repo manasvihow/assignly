@@ -33,4 +33,16 @@ const submitAssignment = async (assignmentId, formData) => {
   return response.data;
 };
 
-export { getAllAssignments, createAssignment, getSubmissionsForAssignment, getMySubmissions, submitAssignment };
+const getMySubmissionForAssignment = async (assignmentId) => {
+  const response = await apiClient.get(`/assignments/${assignmentId}/my-submission`);
+  return response.data;
+};
+
+export {
+  getAllAssignments,
+  createAssignment,
+  getSubmissionsForAssignment,
+  getMySubmissions,
+  submitAssignment,
+  getMySubmissionForAssignment, // ← include this in the export
+};

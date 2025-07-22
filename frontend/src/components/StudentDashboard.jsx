@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAllAssignments, getMySubmissions, submitAssignment } from '../services/assignmentService';
+import { getAllAssignments, getMySubmissions, submitAssignment, getMySubmissionForAssignment } from '../services/assignmentService';
 import Modal from './Modal';
 import SubmissionForm from './SubmissionForm';
 import { format } from 'date-fns'; 
@@ -19,6 +19,8 @@ const StudentDashboard = () => {
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
   const [viewingAssignment, setViewingAssignment] = useState(null);
   const [selectedAssignmentForSubmit, setSelectedAssignmentForSubmit] = useState(null);
+
+  const [viewingSubmission, setViewingSubmission] = useState(null);
 
   
   const fetchData = async () => {
@@ -75,6 +77,23 @@ const StudentDashboard = () => {
     setViewingAssignment(assignment);
   };
 
+  const handleViewSubmission = async (assignment) => {
+    setLoading(true);
+    try {
+      const submission = await getMySubmissionForAssignment(assignment.id);
+      setViewingSubmission({
+        assignmentTitle: assignment.title,
+        submittedAt: submission.submitted_at,
+        attachmentUrl: submission.attachment_url,
+      });
+    } catch (err) {
+      console.error("Failed to fetch submission", err);
+      alert("Could not load your submission.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmitWork = async (formData) => {
     if (!selectedAssignmentForSubmit) return;
     setLoading(true);
@@ -89,6 +108,8 @@ const StudentDashboard = () => {
       setLoading(false);
     }
   };
+
+  
   
  
   const tabBaseStyle = "py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200";
@@ -154,7 +175,7 @@ const StudentDashboard = () => {
                       Submit
                     </button>
                   ) : (
-                    <span className="text-slate-400">-</span>
+                    <span onClick={() => handleViewSubmission(assignment)} className="text-slate-600 font-medium cursor-pointer hover:text-slate-800">View Assignment</span>
                   )}
                 </td>
               </tr>
@@ -186,6 +207,24 @@ const StudentDashboard = () => {
           </div>
         </Modal>
       )}
+
+{viewingSubmission && (
+  <Modal isOpen={!!viewingSubmission} onClose={() => setViewingSubmission(null)} title="Your Submission">
+    <div className="space-y-3">
+      <h4 className="text-lg font-bold text-slate-800">{viewingSubmission.assignmentTitle}</h4>
+      <div>
+        <p className="text-sm font-medium text-slate-700">Submitted At</p>
+        <p className="text-sm text-slate-500">{format(new Date(viewingSubmission.submittedAt), "PPpp")}</p>
+      </div>
+      {viewingSubmission.attachmentUrl && (
+        <a href={`http://127.0.0.1:8000/${viewingSubmission.attachmentUrl}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:underline pt-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+          Download Submitted File
+        </a>
+      )}
+    </div>
+  </Modal>
+)}
     </div>
   );
 };
