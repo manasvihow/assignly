@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode'; 
-import apiClient from '../api/apiClient';
+import { login as loginService } from '../services/authService';
 
 export const AuthContext = createContext(null);
 
@@ -21,16 +21,12 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = async (username, password) => {
-    const formData = new FormData();
-    formData.append('username', username);
-    formData.append('password', password);
-
-    const response = await apiClient.post('/auth/token', formData);
-    
-    const { access_token } = response.data;
+    const data = await loginService(username, password);
+    const { access_token } = data;
     localStorage.setItem('accessToken', access_token);
     setToken(access_token);
   };
+
 
   const logout = () => {
     localStorage.removeItem('accessToken');

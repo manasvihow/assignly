@@ -7,7 +7,7 @@ import {
 } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
-// import DashboardPage from './pages/DashboardPage'; // We will create this next
+import DashboardPage from './pages/DashboardPage'; 
 
 // A wrapper to protect routes that require authentication
 const ProtectedRoute = ({ children }) => {
@@ -30,9 +30,7 @@ const App = () => {
             element={
               <ProtectedRoute>
                 {/* For now, a placeholder. We'll build the real dashboard next. */}
-                <div className="p-8">
-                  <h1 className="text-3xl font-bold text-slate-800">Dashboard</h1>
-                </div>
+                <DashboardPage/>
               </ProtectedRoute>
             }
           />
