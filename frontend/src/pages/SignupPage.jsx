@@ -1,33 +1,24 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { register } from '../services/authService'; 
 
-
-const LoginPage = () => {
+const SignupPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('student'); 
   const [error, setError] = useState('');
-  const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const location = useLocation(); 
-
-  const successMessage = location.state?.message;
-
-  
-  useEffect(() => {
-    if (user) {
-      navigate('/');
-    }
-  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      await login(username, password);
-      navigate('/');
+      await register({ username, password, role });
+      
+      navigate('/login', { state: { message: 'Registration successful! Please sign in.' } });
     } catch (err) {
-      setError('Failed to log in. Please check your username and password.');
+      const errorMsg = err.response?.data?.detail || 'Failed to register. Please try again.';
+      setError(errorMsg);
       console.error(err);
     }
   };
@@ -36,19 +27,13 @@ const LoginPage = () => {
     <div className="flex items-center justify-center min-h-screen bg-slate-100">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
         <h1 className="text-2xl font-bold text-center text-slate-800">
-          Sign in to your account
+          Create a New Account
         </h1>
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-slate-700"
-            >
-              Username
-            </label>
+            <label htmlFor="username" className="block text-sm font-medium text-slate-700">Username</label>
             <input
               id="username"
-              name="username"
               type="text"
               required
               value={username}
@@ -57,21 +42,27 @@ const LoginPage = () => {
             />
           </div>
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-slate-700"
-            >
-              Password
-            </label>
+            <label htmlFor="password" className="block text-sm font-medium text-slate-700">Password</label>
             <input
               id="password"
-              name="password"
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 mt-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
             />
+          </div>
+          <div>
+            <label htmlFor="role" className="block text-sm font-medium text-slate-700">I am a...</label>
+            <select
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full px-3 py-2 mt-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+            >
+              <option value="student">Student</option>
+              <option value="teacher">Teacher</option>
+            </select>
           </div>
 
           {error && <p className="text-sm text-center text-red-600">{error}</p>}
@@ -81,15 +72,14 @@ const LoginPage = () => {
               type="submit"
               className="w-full px-4 py-2 font-semibold text-white bg-teal-600 rounded-md shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
             >
-              Sign in
+              Create Account
             </button>
           </div>
         </form>
-
         <p className="text-sm text-center text-slate-600">
-          Don't have an account?{' '}
-          <Link to="/signup" className="font-medium text-teal-600 hover:underline">
-            Sign Up
+          Already have an account?{' '}
+          <Link to="/login" className="font-medium text-teal-600 hover:underline">
+            Sign In
           </Link>
         </p>
       </div>
@@ -97,4 +87,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default SignupPage;

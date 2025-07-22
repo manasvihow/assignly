@@ -9,4 +9,11 @@ const login = async (username, password) => {
   return response.data;
 };
 
-export { login };
+
+const register = async (userData) => {
+  const response = await apiClient.post('/auth/users/', userData);
+  return response.data;
+};
+
+
+export { login, register};

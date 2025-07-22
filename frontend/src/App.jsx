@@ -7,13 +7,13 @@ import {
 } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage'; 
+import DashboardPage from './pages/DashboardPage';
+import SignUpPage from './pages/SignupPage'; 
 
-// A wrapper to protect routes that require authentication
 const ProtectedRoute = ({ children }) => {
   const { user } = useContext(AuthContext);
   if (!user) {
-    // If user is not logged in, redirect to the login page
+   
     return <Navigate to="/login" />;
   }
   return children;
@@ -24,13 +24,15 @@ const App = () => {
     <AuthProvider>
       <Router>
         <Routes>
+          
+          <Route path="/signup" element={<SignUpPage />} /> 
+          
           <Route path="/login" element={<LoginPage />} />
           <Route
             path="/"
             element={
               <ProtectedRoute>
-                {/* For now, a placeholder. We'll build the real dashboard next. */}
-                <DashboardPage/>
+                <DashboardPage />
               </ProtectedRoute>
             }
           />

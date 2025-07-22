@@ -13,6 +13,8 @@ const TeacherDashboard = () => {
   const [activeTab, setActiveTab] = useState('active');
   const [viewingAssignment, setViewingAssignment] = useState(null);
 
+  const [dateError, setDateError] = useState('');
+
   const fetchAssignments = async () => {
     try {
       const data = await getAllAssignments();
@@ -27,18 +29,48 @@ const TeacherDashboard = () => {
   }, []);
 
   const handleCreateAssignment = async (formData) => {
+    setDateError(''); 
+    if (!formData.deadline) {
+        setDateError('Please select a deadline.');
+        return;
+    }
+    
+    const deadline = new Date(formData.deadline);
+    const now = new Date();
+
+
+    if (deadline < now) {
+      setDateError('The deadline cannot be in the past.');
+      return; 
+    }
+
     setLoading(true);
     try {
-      await createAssignment(formData);
-      setIsCreateModalOpen(false); 
-      fetchAssignments(); 
+      const dataToSubmit = new FormData();
+      dataToSubmit.append('title', formData.title);
+      dataToSubmit.append('description', formData.description);
+      dataToSubmit.append('deadline', deadline.toISOString());
+      if (formData.attachment) {
+        dataToSubmit.append('attachment', formData.attachment);
+      }
+
+      await createAssignment(dataToSubmit);
+      setIsCreateModalOpen(false);
+      fetchAssignments();
     } catch (err) {
       console.error("Failed to create assignment", err);
-      alert("Failed to create assignment.");
+      alert("Failed to create assignment. Please check the details and try again.");
     } finally {
       setLoading(false);
     }
   };
+
+  const handleOpenCreateModal = () => {
+
+    setDateError('');
+    setIsCreateModalOpen(true);
+  };
+
 
   const { activeAssignments, pastAssignments } = useMemo(() => {
     const now = new Date();
@@ -60,30 +92,32 @@ const TeacherDashboard = () => {
     setViewingAssignment(assignment);
   };
 
+  const tabBaseStyle = "py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200";
+  const tabInactiveStyle = "text-slate-500 border-transparent hover:text-slate-600 hover:border-slate-300";
+  const tabActiveStyle = "text-slate-700 border-slate-700";
+
   return (
     <div>
-      {/* Conditionally render the detail view OR the list view */}
       {viewingAssignment ? (
         <AssignmentDetail 
           assignment={viewingAssignment} 
           onBack={() => setViewingAssignment(null)} 
         />
       ) : (
-        // This is the original Master List view
         <div className="flex gap-8">
           {/* Left Column: Tabs and Table */}
           <div className="w-2/3">
             <div className="border-b border-slate-200 mb-4">
-              <nav className="-mb-px flex gap-6">
+              <nav className="-mb-px flex gap-6" aria-label="Tabs">
                 <button
                   onClick={() => setActiveTab('active')}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'active' ? 'text-teal-600 border-teal-500' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
+                  className={`cursor-pointer ${tabBaseStyle} ${activeTab === 'active' ? tabActiveStyle : tabInactiveStyle}`}
                 >
                   Active Assignments
                 </button>
                 <button
                   onClick={() => setActiveTab('past')}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'past' ? 'text-teal-600 border-teal-500' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
+                  className={`cursor-pointer ${tabBaseStyle} ${activeTab === 'past' ? tabActiveStyle : tabInactiveStyle}`}
                 >
                   Past Assignments
                 </button>
@@ -91,7 +125,7 @@ const TeacherDashboard = () => {
             </div>
             <div>
               {activeTab === 'active' ? (
-                <AssignmentsTable assignments={activeAssignments} onRowClick={handleRowClick}/>
+                <AssignmentsTable assignments={activeAssignments} onRowClick={handleRowClick} />
               ) : (
                 <AssignmentsTable assignments={pastAssignments} onRowClick={handleRowClick} />
               )}
@@ -100,12 +134,12 @@ const TeacherDashboard = () => {
 
           {/* Right Column: Actions */}
           <div className="w-1/3">
-            <div className="p-4 bg-slate-50 rounded-lg">
+            <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
               <h3 className="font-semibold text-slate-800">Actions</h3>
-              <p className="text-sm text-slate-600 mb-4">Create and manage your assignments.</p>
+              <p className="text-sm text-slate-500 mb-4">Create and manage your assignments.</p>
               <button
                 onClick={() => setIsCreateModalOpen(true)}
-                className="w-full px-4 py-2 font-semibold text-white bg-teal-600 rounded-md shadow-sm hover:bg-teal-700"
+                className="cursor-pointer w-full px-4 py-2 font-semibold text-white bg-slate-700 rounded-lg shadow-sm hover:bg-slate-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
               >
                 Create New Assignment
               </button>
@@ -114,12 +148,13 @@ const TeacherDashboard = () => {
         </div>
       )}
 
-      {/* The Modal for Creating an Assignment still works the same */}
+      {/* The Modal for Creating an Assignment */}
       <Modal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} title="Create New Assignment">
         <CreateAssignmentForm
           onSubmit={handleCreateAssignment}
           onCancel={() => setIsCreateModalOpen(false)}
           loading={loading}
+          dateError={dateError}
         />
       </Modal>
     </div>
