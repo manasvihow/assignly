@@ -19,4 +19,18 @@ const getSubmissionsForAssignment = async (assignmentId) => {
   return response.data;
 };
 
-export { getAllAssignments, createAssignment, getSubmissionsForAssignment };
+const getMySubmissions = async () => {
+  const response = await apiClient.get('/submissions/me');
+  return response.data;
+};
+
+const submitAssignment = async (assignmentId, formData) => {
+  const response = await apiClient.post(`/assignments/${assignmentId}/submit`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+export { getAllAssignments, createAssignment, getSubmissionsForAssignment, getMySubmissions, submitAssignment };

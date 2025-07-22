@@ -23,3 +23,4 @@ class SubmissionRead(SQLModel):
     submitted_at: datetime
     attachment_url: Optional[str] = None
     student: UserRead 
+    assignment_id: int

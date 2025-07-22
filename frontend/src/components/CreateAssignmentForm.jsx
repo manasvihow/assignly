@@ -20,7 +20,7 @@ const CreateAssignmentForm = ({ onSubmit, onCancel, loading }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="space-y-4">
+      <div className="space-y-4 ">
         <input type="text" placeholder="Assignment Title" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-md" required />
         <textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-md" required />
         <div>
