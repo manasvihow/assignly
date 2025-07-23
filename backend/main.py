@@ -8,10 +8,6 @@ from .api.v1.router import api_router
 
 from fastapi.staticfiles import StaticFiles
 
-origins = [
-    "http://localhost:5173",
-]
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Starting up...")
@@ -25,7 +21,7 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"], 
     allow_headers=["*"], 
