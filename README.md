@@ -37,6 +37,24 @@
 - Automatic tagging of **late** submissions
 - Visual indicators for **pending** work on student dashboard
 
+#### ⚠️ Note on File Uploads (Production Limitation)
+
+> File uploads (assignment attachments and submissions) are stored in a local `uploads/` directory.
+
+- This works **locally**, but **does not work on Render** (or similar platforms) because:
+  - Render’s filesystem is **ephemeral and read-only after build**.
+  - The `uploads/` folder cannot retain files or be written to during runtime.
+
+**Current Limitation**: Uploads silently fail or are inaccessible in production.
+
+#### Recommended Solution
+To support uploads in production, integrate with a cloud-based storage service like:
+- [Amazon S3](https://aws.amazon.com/s3/)
+- [Cloudinary](https://cloudinary.com/)
+- [Firebase Storage](https://firebase.google.com/docs/storage)
+
+Until then, uploads are only supported when running the backend **locally**.
+
 ---
 
 ## Using the App
