@@ -4,13 +4,87 @@
 
 ---
 
-## Features
+## 🧩 System Design
 
-### 🔐 Authentication & Access Control
+### 🧱 Core Entities and Relationships
+
+#### 📘 User
+
+| Field            | Type       | Description                         |
+|------------------|------------|-------------------------------------|
+| `id`             | int        | Primary key                         |
+| `username`       | str        | Unique username                     |
+| `hashed_password`| str        | Hashed password for authentication  |
+| `role`           | enum       | Either `teacher` or `student`       |
+
+- Relationships:
+  - A **teacher** can create many **assignments**
+  - A **student** can make many **submissions**
+
+---
+
+#### 📘 Assignment
+
+| Field            | Type       | Description                                |
+|------------------|------------|--------------------------------------------|
+| `id`             | int        | Primary key                                |
+| `title`          | str        | Assignment title                           |
+| `description`    | str        | Description of the assignment              |
+| `created_at`     | datetime   | Time of creation                           |
+| `deadline`       | datetime   | Due date for the assignment                |
+| `attachment_url` | str?       | (Optional) File uploaded by teacher        |
+| `teacher_id`     | int        | Foreign key → `User.id` (teacher)          |
+
+- Relationships:
+  - Linked to one **teacher**
+  - Can have many **submissions**
+
+---
+
+#### 📘 Submission
+
+| Field             | Type       | Description                                  |
+|-------------------|------------|----------------------------------------------|
+| `id`              | int        | Primary key                                  |
+| `submitted_at`    | datetime   | Timestamp of the submission                  |
+| `attachment_url`  | str?       | (Optional) Submitted file                    |
+| `assignment_id`   | int        | Foreign key → `Assignment.id`                |
+| `student_id`      | int        | Foreign key → `User.id` (student)            |
+
+- Relationships:
+  - Belongs to one **assignment**
+  - Belongs to one **student**
+
+---
+
+#### 🔗 Relationships Overview
+
+- **User** (`teacher`) ⟶ **Assignment** (1:N)
+- **User** (`student`) ⟶ **Submission** (1:N)
+- **Assignment** ⟶ **Submission** (1:N)
+
+---
+
+### 🔐 Authentication Strategy
+
+- Role-based JWT authentication:
+  - Users authenticate and receive a token
+  - The token includes role claims (`teacher` or `student`)
+- Routes are protected using FastAPI dependencies:
+  - Teachers can access routes like assignment creation and viewing submissions
+  - Students can access submission-related routes only
+
+---
+
+## 🛠 Prototype Implementation
+
+### Features
+
+#### 🔐 Authentication & Access Control
 - Role-based signup and login (Teacher / Student)
 - Secure access to resources based on user roles
 
-### 🧑‍🏫 Teacher Functionality
+#### 🧑‍🏫 Teacher Functionality
 - Create assignments with:
   - Title, description, deadline
   - File attachments (e.g., PDFs, Docs)
@@ -22,22 +96,22 @@
   - **Active** and **Past** assignment tabs
   - Assignment detail view with submission status
 
-### 🎓 Student Functionality
+#### 🎓 Student Functionality
 - View list of **Active** and **Past** assignments
 - Submit assignments with file uploads
 - See submission status:
   - **Pending** tag if not submitted
   - **Late** tag if submitted past the deadline
 
-### 📂 File Management
+#### 📂 File Management
 - File uploads supported for both assignment creation and submission
 - Proper file storage and access handling
 
-### 🧠 Smart Labels & Tracking
+#### 🧠 Smart Labels & Tracking
 - Automatic tagging of **late** submissions
 - Visual indicators for **pending** work on student dashboard
 
-#### ⚠️ Note on File Uploads (Production Limitation)
+##### ⚠️ Note on File Uploads (Production Limitation)
 
 > File uploads (assignment attachments and submissions) are stored in a local `uploads/` directory.
 
@@ -47,7 +121,7 @@
 
 **Current Limitation**: Uploads silently fail or are inaccessible in production.
 
-#### Recommended Solution
+##### Recommended Solution
 To support uploads in production, integrate with a cloud-based storage service like:
 - [Amazon S3](https://aws.amazon.com/s3/)
 - [Cloudinary](https://cloudinary.com/)
@@ -56,6 +130,36 @@ To support uploads in production, integrate with a cloud-based storage service l
 Until then, uploads are only supported when running the backend **locally**.
 
 ---
+
+## Tech Stack
+
+#### Backend
+- **Python** with **FastAPI** 
+- **SQLite** for local database, and **PostgreSQL** on **Neon**
+- **JWT Authentication** for secure role-based access
+- **Pydantic** and **SQLModel** for request/response validation
+
+#### Frontend
+- **React** with **Vite**
+- **Axios** for API requests
+- **React Router** for navigation
+- **Tailwind CSS** for styling
+
+#### Dev & Deployment
+- **Git** & **GitHub** for version control
+- Deployment via **Render**
+
+---
+
+## API Reference
+
+Assignly provides a full set of RESTful APIs for authentication, assignment creation, and submissions.
+
+Interactive API documentation is available via **Swagger UI**:
+
+🔗 [https://assignly.onrender.com/docs](https://assignly.onrender.com/docs)
+
+
 
 ## Using the App
 
@@ -98,35 +202,6 @@ npm run dev
 ```
 
 This will run the frontend at: [http://localhost:5173](http://localhost:5173)
-
----
-
-## API Reference
-
-Assignly provides a full set of RESTful APIs for authentication, assignment creation, and submissions.
-
-Interactive API documentation is available via **Swagger UI**:
-
-🔗 [https://assignly.onrender.com/docs](https://assignly.onrender.com/docs)
-
-
-## Tech Stack
-
-#### Backend
-- **Python** with **FastAPI** 
-- **SQLite** for local database, and **PostgreSQL** on **Render**
-- **JWT Authentication** for secure role-based access
-- **Pydantic** and **SQLModel** for request/response validation
-
-#### Frontend
-- **React** with **Vite**
-- **Axios** for API requests
-- **React Router** for navigation
-- **Tailwind CSS** for styling
-
-#### Dev & Deployment
-- **Git** & **GitHub** for version control
-- Deployment via **Render**
 
 ---
 
