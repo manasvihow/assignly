@@ -60,7 +60,7 @@ Until then, uploads are only supported when running the backend **locally**.
 ## Using the App
 
 Try out Assignly live here:  
-🔗 [https://your-deployment-link.com](https://your-deployment-link.com)
+🔗 [https://assignly-frontend.onrender.com/](https://assignly-frontend.onrender.com/)
 
 ---
 
@@ -107,11 +107,8 @@ Assignly provides a full set of RESTful APIs for authentication, assignment crea
 
 Interactive API documentation is available via **Swagger UI**:
 
-🔗 [http://localhost:8000/docs](http://localhost:8000/docs)
+🔗 [https://assignly.onrender.com/docs](https://assignly.onrender.com/docs)
 
-Or, if you prefer raw OpenAPI schema:
-
-🔗 [http://localhost:8000/openapi.json](http://localhost:8000/openapi.json)
 
 ## Tech Stack
 
